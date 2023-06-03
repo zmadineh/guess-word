@@ -1,5 +1,5 @@
 
-export default function InputForm({value, setValue, handleSubmit}) {
+export default function InputForm({value, handleChange, handleSubmit, enable}) {
 
     return (
         <form onSubmit={handleSubmit}>
@@ -9,10 +9,11 @@ export default function InputForm({value, setValue, handleSubmit}) {
                     type="text"
                     name="player-guess"
                     value={value}
-                    onChange={(e) => setValue(e.target.value)}
+                    onKeyDown={handleChange}
+                    disabled={!enable}
                 />
             </label>
-            <input type="submit" value="Submit" />
+            <input type="submit" value="Submit" disabled={!enable}/>
         </form>
     );
 }
