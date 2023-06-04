@@ -1,12 +1,11 @@
 import { useState } from 'react'
 import {words} from "../data/words";
 import {queries} from "@testing-library/react";
+import {letterPossibility} from "../data/letterPossibility";
 
 const useBotGameStates = (secret, playerTurn, setPlayerTurn, strLen, mode) => {
-    const [turn, setTurn] = useState(0)
     const [currentBotGuess, setCurrentBotGuess] = useState('')
     const [botGuesses, setBotGuesses] = useState([]) // each guess is an array
-    const [botHistory, setBotHistory] = useState([]) // each guess is a string
     const [letterHistory, setLetterHistory] = useState(Array.apply(null, Array(strLen)).map(l => {
         return {correct: null, incorrectPos: []}
     }))
@@ -17,9 +16,7 @@ const useBotGameStates = (secret, playerTurn, setPlayerTurn, strLen, mode) => {
     const [validWords, setValidWords] = useState(words)
 
     const resetBotState = (newSecret) => {
-        setTurn(0)
         setBotGuesses([])
-        setBotHistory([])
         setBotIsCorrect(false)
         setValidWords(words)
         setIncorrectLetters([])
@@ -30,10 +27,7 @@ const useBotGameStates = (secret, playerTurn, setPlayerTurn, strLen, mode) => {
         }))
     }
 
-    // format a guess into an array of letter objects
-    // e.g. [{key: 'a', color: 'yellow'}]
     const formatGuess = (guess) => {
-        console.log('current bot guess : ', currentBotGuess)
 
         let secretArray = [...secret]
         let formattedGuess = [...guess].map((l) => {
@@ -86,25 +80,14 @@ const useBotGameStates = (secret, playerTurn, setPlayerTurn, strLen, mode) => {
 
 
     const addNewGuess = (guess) => {
-        console.log('compare bot guess: ', guess, 'current', currentBotGuess, 'secret', secret)
         if (guess === secret) {
-            console.log('compare bot guess: ', guess, currentBotGuess, secret)
             setBotIsCorrect(true)
         }
-
-        setBotHistory(prevHistory => {
-            return [...prevHistory, guess]
-        })
 
         setBotGuesses(prevGuesses => {
             setCurrentBotGuess(guess)
             return [...prevGuesses, guess]
         })
-
-        setTurn(prevTurn => {
-            return prevTurn + 1
-        })
-        // setCurrentBotGuess('')
       }
 
 
@@ -119,8 +102,6 @@ const useBotGameStates = (secret, playerTurn, setPlayerTurn, strLen, mode) => {
         else newWords = hardWordTest(letterHistory, incorrectLetters, incorrectPos).map(item => { return item.w })
 
         setValidWords(newWords)
-        console.log('new words: ' , newWords)
-
 
         let newGuess = ''
         if(mode === 'easy')
@@ -130,12 +111,9 @@ const useBotGameStates = (secret, playerTurn, setPlayerTurn, strLen, mode) => {
         else
             newGuess = newWords[0]
 
-
-
         setCurrentBotGuess(newGuess)
-        console.log('bot guess: ', newGuess, currentBotGuess)
 
-        const lHistory = formatGuess(newGuess)
+        formatGuess(newGuess)
         addNewGuess(newGuess)
 
         // change player turn
@@ -181,74 +159,31 @@ const useBotGameStates = (secret, playerTurn, setPlayerTurn, strLen, mode) => {
                     return
                 }
                 else if (incorrectLetters.includes(wordArray[i])) { // grey test
-                    console.log('incorrect : ', wordArray[i])
                      pass = false
                      return
                 }
                 else
                     pass = !letterHistory[i].incorrectPos.includes(wordArray[i]) // yellow test
-
-        console.log('avg test: ', word, pass, incorrectLetters)
         return pass
     }
 
     const hardWordTest = ( letterHistory, incorrectLetters, incorrectPos) => {
-        const letterPossibility =
-            [
-                {key: 'A', p: 	8.4966},
-                {key: 'B', p: 	2.0720},
-                {key: 'C', p: 	4.5388},
-                {key: 'D', p: 	3.3844},
-                {key: 'E', p: 	11.1607},
-                {key: 'F', p: 	1.8121},
-                {key: 'G', p: 	2.4705},
-                {key: 'H', p: 	3.0034},
-                {key: 'I', p: 	7.5448},
-                {key: 'J', p: 	0.1965},
-                {key: 'K', p: 	1.1016},
-                {key: 'L', p: 	5.4893},
-                {key: 'M', p: 	3.01296},
-                {key: 'N', p: 	6.6544},
-                {key: 'O', p: 	7.1635},
-                {key: 'P', p: 	3.1671},
-                {key: 'Q', p: 	0.1962},
-                {key: 'R', p: 	7.5809},
-                {key: 'S', p: 	5.7351},
-                {key: 'T', p: 	6.9509},
-                {key: 'U', p: 	3.6308},
-                {key: 'V', p: 	1.0074},
-                {key: 'W', p: 	1.2899},
-                {key: 'X', p: 	0.2902},
-                {key: 'Y', p: 	1.7779},
-                {key: 'Z', p: 	0.2722},
-            ]
 
-        let pass = true
-
-        let filteredWords = validWords.filter(word => !botHistory.includes(word) && avgWordTest(word, letterHistory, incorrectLetters, incorrectPos))
-
-        console.log('hard test filteredWords: ', filteredWords)
+        const lettersPossibility = letterPossibility
+        let filteredWords = validWords.filter(word => !botGuesses.includes(word) && avgWordTest(word, letterHistory, incorrectLetters, incorrectPos))
 
         let possibilityArray = []
-
         filteredWords.map(word => {
             let wordP = 0
             word.split('').forEach(letter => {
-                wordP += letterPossibility.find(item => item.key === letter).p
+                wordP += lettersPossibility.find(item => item.key === letter).p
             })
             possibilityArray.push({w: word, p: wordP})
         })
-
-        // console.log('hard test possibility: ', possibilityArray)
-
-        let sortedPossibility = possibilityArray.sort((word1, word2) => (word2.p - word1.p));
-
-        console.log('hard test sorted: ', sortedPossibility, sortedPossibility[0])
-
-        return sortedPossibility
+        return possibilityArray.sort((word1, word2) => (word2.p - word1.p));
     }
 
-    return {turn, botHistory, botGuesses, botIsCorrect, createGuess, resetBotState}
+    return {turn, botGuesses, botIsCorrect, createGuess, resetBotState}
 }
 
 export default useBotGameStates;

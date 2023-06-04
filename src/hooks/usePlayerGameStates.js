@@ -14,6 +14,7 @@ const usePlayerGameStates = (secret, setPlayerTurn) => {
         setHistory([])
         setIsCorrect(false)
     }
+
     // format a guess into an array of letter objects
     // e.g. [{key: 'a', color: 'yellow'}]
     const formatGuess = () => {
