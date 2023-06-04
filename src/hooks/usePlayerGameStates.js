@@ -7,6 +7,13 @@ const usePlayerGameStates = (secret, setPlayerTurn) => {
     const [history, setHistory] = useState([]) // each guess is a string
     const [isCorrect, setIsCorrect] = useState(false)
 
+    const resetPlayerState = () => {
+        setTurn(0)
+        setCurrentPlayerGuess('')
+        setGuesses([])
+        setHistory([])
+        setIsCorrect(false)
+    }
     // format a guess into an array of letter objects
     // e.g. [{key: 'a', color: 'yellow'}]
     const formatGuess = () => {
@@ -55,8 +62,6 @@ const usePlayerGameStates = (secret, setPlayerTurn) => {
         setCurrentPlayerGuess('')
     }
 
-    // handle keyup event & track current guess
-    // if user presses enter, add the new guess
 
     const handleSubmit = (event) => {
 
@@ -75,7 +80,6 @@ const usePlayerGameStates = (secret, setPlayerTurn) => {
 
         const formatted = formatGuess()
         addNewGuess(formatted)
-        console.log('player guess: ', formatted)
 
         // change player turn
         setPlayerTurn(prev => !prev)
@@ -94,7 +98,7 @@ const usePlayerGameStates = (secret, setPlayerTurn) => {
         }
     }
 
-    return {turn, currentPlayerGuess, history, guesses, isCorrect, handleChange, handleSubmit}
+    return {turn, currentPlayerGuess, history, guesses, isCorrect, handleChange, handleSubmit, resetPlayerState}
 }
 
 export default usePlayerGameStates;

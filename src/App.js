@@ -7,15 +7,20 @@ import Game from "./component/Game";
 function App() {
 
     const [secret, setSecret] = useState(null)
+    const strLen = 5
+
+    const resetSecret = () => {
+        const randomSecret = 'LIVES' //words[Math.floor(Math.random() * words.length)]
+        setSecret(randomSecret)
+    }
 
     useEffect(() => {
-        const randomSecret = words[Math.floor(Math.random() * words.length)]
-        setSecret(randomSecret)
+        resetSecret()
     }, [setSecret])
 
     return (
         <div className="App">
-            <Game secret={secret} />
+            <Game secret={secret} resetSecret={resetSecret} strLen={strLen}/>
         </div>
     );
 }
