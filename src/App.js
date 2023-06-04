@@ -10,7 +10,7 @@ function App() {
     const strLen = 5
 
     const resetSecret = () => {
-        const randomSecret = 'LIVES' //words[Math.floor(Math.random() * words.length)]
+        const randomSecret = words[Math.floor(Math.random() * words.length)]
         setSecret(randomSecret)
     }
 
@@ -19,7 +19,7 @@ function App() {
     }, [setSecret])
 
     return (
-        <div className="App">
+        <div className={"main-container"}>
             <Game secret={secret} resetSecret={resetSecret} strLen={strLen}/>
         </div>
     );

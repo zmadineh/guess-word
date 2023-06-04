@@ -1,3 +1,5 @@
+import {words} from "./words";
+
 export const letterPossibility =
     [
         {key: 'A', p: 	8.4966},
@@ -27,3 +29,8 @@ export const letterPossibility =
         {key: 'Y', p: 	1.7779},
         {key: 'Z', p: 	0.2722},
     ];
+
+// const calcPossibility = () => {
+//     let count = Array.apply(null, Array(26)).map(l => { return 0})
+//     words.map()
+// }

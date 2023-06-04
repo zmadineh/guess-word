@@ -70,12 +70,12 @@ const usePlayerGameStates = (secret, setPlayerTurn) => {
 
         // do not allow duplicate words
         if (history.includes(currentPlayerGuess)) {
-            console.log('you already tried that word.')
+            alert('you already tried that word.')
             return
         }
         // check word is 5 chars
         if (currentPlayerGuess.length !== 5) {
-            console.log('word must be 5 chars.')
+            alert('word must be 5 chars.')
             return
         }
 
@@ -99,7 +99,7 @@ const usePlayerGameStates = (secret, setPlayerTurn) => {
         }
     }
 
-    return {turn, currentPlayerGuess, history, guesses, isCorrect, handleChange, handleSubmit, resetPlayerState}
+    return {currentPlayerGuess, history, guesses, isCorrect, handleChange, handleSubmit, resetPlayerState}
 }
 
 export default usePlayerGameStates;

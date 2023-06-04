@@ -4,6 +4,7 @@ import {queries} from "@testing-library/react";
 import {letterPossibility} from "../data/letterPossibility";
 
 const useBotGameStates = (secret, playerTurn, setPlayerTurn, strLen, mode) => {
+    const [turn, setTurn] = useState(0)
     const [currentBotGuess, setCurrentBotGuess] = useState('')
     const [botGuesses, setBotGuesses] = useState([]) // each guess is an array
     const [letterHistory, setLetterHistory] = useState(Array.apply(null, Array(strLen)).map(l => {
@@ -64,11 +65,11 @@ const useBotGameStates = (secret, playerTurn, setPlayerTurn, strLen, mode) => {
                 tempArray[i].incorrectPos.push(l.key)
                 tempIncorrectPos.push(l.key)
             }
-            else if(!tempCorrectLetters.includes(l.key) && !tempIncorrectPos.includes(l.key))
+            else
                 tempIncorrectLetters.push(l.key)
-
-            console.log('formatted: ', tempIncorrectLetters, tempIncorrectPos, tempArray[i].correct)
         })
+
+        tempIncorrectLetters = tempIncorrectLetters.filter(l => !tempCorrectLetters.includes(l) && !tempIncorrectPos.includes(l))
 
         setLetterHistory(tempArray)
         setCorrectLetters([...new Set(tempCorrectLetters)])
@@ -108,8 +109,10 @@ const useBotGameStates = (secret, playerTurn, setPlayerTurn, strLen, mode) => {
             newGuess = newWords[Math.floor(Math.random() * newWords.length)]
         else if(mode === 'avg')
             newGuess = newWords[Math.floor(Math.random() * newWords.length)]
-        else
-            newGuess = newWords[0]
+        else{
+            let temp = newWords.slice(0, (newWords.length > 10 ? 10 : newWords.length))
+            newGuess = temp[Math.floor(Math.random() * temp.length)]
+        }
 
         setCurrentBotGuess(newGuess)
 

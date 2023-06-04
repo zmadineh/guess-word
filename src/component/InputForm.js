@@ -1,3 +1,4 @@
+import "../style/game.css"
 
 export default function InputForm({value, handleChange, handleSubmit, enable}) {
 
@@ -11,9 +12,12 @@ export default function InputForm({value, handleChange, handleSubmit, enable}) {
                     value={value}
                     onKeyDown={handleChange}
                     disabled={!enable}
+                    onChange={()=> {}}
+                    className={"user-input"}
                 />
             </label>
-            <input type="submit" value="Submit" disabled={!enable}/>
+
+            <input className={"submit-btn , btn"} type="submit" value="Submit" disabled={!enable}/>
         </form>
     );
 }

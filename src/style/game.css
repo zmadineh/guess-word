@@ -1,0 +1,77 @@
+.container {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.main-header {
+    align-self: center;
+}
+
+.btn {
+    border-style: solid;
+    border-radius: 20px;
+    border-color: #008000;
+    border-width: 3px;
+    font-size: 15px;
+    font-weight: bold;
+    margin: 10px;
+}
+
+.btn:hover {
+    background-color: #00b700;
+    transition: 0.4s;
+}
+
+.reset-btn {
+    align-self: center;
+    width: 130px;
+    height: 40px;
+}
+
+.submit-btn {
+    width: 120px;
+    height: 30px;
+}
+
+.user-input {
+    max-width: 120px;
+    border-style: solid;
+    border-radius: 5px;
+    border-color: #008000;
+    border-width: 3px;
+    width: 120px;
+    height: 20px;
+    margin: 10px;
+}
+
+.setting-container {
+    display: flex;
+    justify-content: space-evenly;
+    margin: 10px 0;
+}
+
+.setting-column {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+.input-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.list-container {
+    display: flex;
+    justify-content: space-around;
+    font-size: 20px;
+}
+
+.list-item {
+    letter-spacing: 0.2rem;
+    list-style-type: none;
+}

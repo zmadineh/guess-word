@@ -2,13 +2,16 @@ import {useState, useEffect} from "react";
 import InputForm from "./InputForm";
 import useBotGameStates from "../hooks/useBotGameStates";
 import usePlayerGameStates from "../hooks/usePlayerGameStates";
+import ListCreator from "./ListCreator";
+import ModeSelection from "./ModeSelection";
+
+import '../style/game.css';
 
 export default function Game({secret, resetSecret, strLen}) {
 
     const [playerTurn, setPlayerTurn] = useState(true) // true human or false bot
     const [stop, setStop] = useState(false)
     const [mode, setMode] = useState('avg')
-    const [selectedValue, setSelectedValue] = useState()
     const { currentPlayerGuess, isCorrect, guesses, handleChange, handleSubmit, resetPlayerState } = usePlayerGameStates(secret, setPlayerTurn)
     const { botIsCorrect, botGuesses, createGuess, resetBotState } = useBotGameStates(secret, playerTurn, setPlayerTurn, strLen, mode)
 
@@ -41,63 +44,57 @@ export default function Game({secret, resetSecret, strLen}) {
     }
 
     return (
-        <div>
-            <h1>miley challenge</h1>
-            {secret && <div>Secret is: {stop ? secret : "*****"}</div>}
-            <div>
-                <button onClick={resetGame}>new game</button>
-            </div>
-            <div>
-                <br/>
-                <input type='radio' name='mode' id='easy-selector' value='easy' checked={mode === 'easy'}
-                       onChange={modeHandleChange}/>
-                <label htmlFor="easy-selector">easy</label>
-                <br/>
-                <input type='radio' name='mode' id='avg-selector' value='avg' checked={mode === 'avg'}
-                       onChange={modeHandleChange}/>
-                <label htmlFor="avg-selector">avg</label>
+        <div className={"container"}>
 
-                <input type='radio' name='mode' id='hard-selector' value='hard' checked={mode === 'hard'}
-                       onChange={modeHandleChange}/>
-                <label htmlFor="hard-selector">hard</label>
+            <h1 className={"main-header"}>miley challenge</h1>
+            <button className={"reset-btn , btn"} onClick={resetGame}>new game</button>
 
-                <div>
-                    {mode}
+            <div className={"setting-container"}>
+                <div className={"setting-column"}>
+                    {secret && <h4>Secret is : {stop ? secret : "_ _ _ _ _"}</h4>}
+                    <div>Turn is : <span style={{fontSize: "17px", fontWeight: "bold"}}>{playerTurn ? 'you' : 'bot'}</span></div>
+                </div>
+                <div className={"setting-column"}>
+                    <ModeSelection
+                        mode={mode}
+                        handleChange={modeHandleChange}
+                    />
                 </div>
             </div>
-            <div>Turn is: {playerTurn ? 'human' : 'bot'}</div>
-            <div>
-                <InputForm value={currentPlayerGuess} handleChange={handleChange} handleSubmit={handleSubmit} enable={playerTurn && !isCorrect && !botIsCorrect}/>
+
+            <div className={"input-container"}>
+                <InputForm
+                    value={currentPlayerGuess}
+                    handleChange={handleChange}
+                    handleSubmit={handleSubmit}
+                    enable={playerTurn && !isCorrect && !botIsCorrect}/>
             </div>
 
-            <div style={{display: "flex", justifyContent: "space-around"}}>
-                <div>
-                    <h4>player guess</h4>
-                    <ul>
-                        {
-                            guesses.map((item, index) => (
-                                <li key={index} style={{listStyleType: "none"}}>
-                                    {item.map((letter) => (
-                                        <span style={{color: letter.color}}>{letter.key}</span>
-                                    ))}
-                                </li>
-                            ))
-                        }
-                    </ul>
-                </div>
-
-                <div>
-                    <h4>robot guess</h4>
-                    <ul>
+            <div className={"list-container"}>
+                <ListCreator title={'Player guess'}>
+                    {
+                        guesses.map((item, index) => (
+                            <div key={index} className={"list-item"}>
+                                {item.map((letter) => (
+                                    <span style={{color: letter.color}}>
+                                        {letter.key}
+                                    </span>
+                                ))}
+                            </div>
+                        ))
+                    }
+                </ListCreator>
+                <ListCreator title={'Robot guess'}>
                         {
                             botGuesses.map((item, index) => (
-                                <li key={index} style={{listStyleType: "none", color: (item === secret ? 'green' : "black") }}>
-                                    {item}
-                                </li>
+                                <div key={index} className={"list-item"}>
+                                    <span style={{color: (item === secret ? 'green' : "#ececec")}}>
+                                        {item}
+                                    </span>
+                                </div>
                             ))
                         }
-                    </ul>
-                </div>
+                </ListCreator>
             </div>
         </div>
     );
