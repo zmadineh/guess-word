@@ -86,6 +86,8 @@ const usePlayerGameStates = (secret, setPlayerTurn) => {
         setPlayerTurn(prev => !prev)
     }
 
+    // when the player selects a key,
+    // this function is executed to check if it is a letter of the alphabet
     const handleChange = ({ key }) => {
 
         if (key === "Backspace") {

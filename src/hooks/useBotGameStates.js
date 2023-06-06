@@ -1,20 +1,31 @@
 import { useState } from 'react'
 import {words} from "../data/words";
-import {queries} from "@testing-library/react";
-import {letterPossibility} from "../data/letterPossibility";
+import {letterFrequency} from "../data/letterFrequency";
 
 const useBotGameStates = (secret, playerTurn, setPlayerTurn, strLen, mode) => {
     const [turn, setTurn] = useState(0)
     const [currentBotGuess, setCurrentBotGuess] = useState('')
     const [botGuesses, setBotGuesses] = useState([]) // each guess is an array
+    const [botIsCorrect, setBotIsCorrect] = useState(false)
+
+    // store words that the bot can choose
+    const [validWords, setValidWords] = useState(words)
+
+    // save all letters that are in the secret and have correct position
+    const [correctLetters, setCorrectLetters] = useState([])
+
+    // save all letters that are not in the secret
+    const [incorrectLetters, setIncorrectLetters] = useState([])
+
+    // save all letters that are in the secret and not in correct position
+    const [incorrectPos, setIncorrectPos] = useState([])
+
+    // for each position, save the correct letter
+    // and the letter that are in the secret but not in correct position were chosen
+    // for this position in the previous guesses
     const [letterHistory, setLetterHistory] = useState(Array.apply(null, Array(strLen)).map(l => {
         return {correct: null, incorrectPos: []}
     }))
-    const [correctLetters, setCorrectLetters] = useState([])
-    const [incorrectLetters, setIncorrectLetters] = useState([])
-    const [incorrectPos, setIncorrectPos] = useState([])
-    const [botIsCorrect, setBotIsCorrect] = useState(false)
-    const [validWords, setValidWords] = useState(words)
 
     const resetBotState = (newSecret) => {
         setBotGuesses([])
@@ -30,6 +41,8 @@ const useBotGameStates = (secret, playerTurn, setPlayerTurn, strLen, mode) => {
 
     const formatGuess = (guess) => {
 
+        // format a guess into an array of letter objects
+        // e.g. [{key: 'a', color: 'yellow'}]
         let secretArray = [...secret]
         let formattedGuess = [...guess].map((l) => {
             return {key: l, color: 'grey'}
@@ -51,11 +64,17 @@ const useBotGameStates = (secret, playerTurn, setPlayerTurn, strLen, mode) => {
             }
         })
 
+
+        // Letters are separated into three categories:
+        // 1) correct letters and correct position -> correctLetters array
+        // 2) correct letters and incorrect position -> incorrectPos array
+        // 3) incorrect letters -> incorrectLetters array
         const tempArray = letterHistory
         let tempCorrectLetters = [...correctLetters]
         let tempIncorrectPos = [...incorrectPos]
         let tempIncorrectLetters = [...incorrectLetters]
 
+        // fill letterHistory and three categories of letters (correctLetters, incorrectPos, incorrectLetters)
         formattedGuess.forEach((l, i) => {
             if(l.color === 'green') {
                 tempArray[i].correct = l.key
@@ -69,17 +88,20 @@ const useBotGameStates = (secret, playerTurn, setPlayerTurn, strLen, mode) => {
                 tempIncorrectLetters.push(l.key)
         })
 
+        // remove the letters that are common in correctLetters or incorrectPos and incorrectLetters from incorrectLetters,
+        // for words that have the same two letters
         tempIncorrectLetters = tempIncorrectLetters.filter(l => !tempCorrectLetters.includes(l) && !tempIncorrectPos.includes(l))
 
         setLetterHistory(tempArray)
+        // use set to have an array of unique letters
         setCorrectLetters([...new Set(tempCorrectLetters)])
         setIncorrectPos([...new Set(tempIncorrectPos)])
         setIncorrectLetters([...new Set(tempIncorrectLetters)])
-
-        return tempArray
     }
 
 
+    // add a new guess to the guesses state
+    // update the botIsCorrect state if the guess is correct
     const addNewGuess = (guess) => {
         if (guess === secret) {
             setBotIsCorrect(true)
@@ -92,25 +114,29 @@ const useBotGameStates = (secret, playerTurn, setPlayerTurn, strLen, mode) => {
       }
 
 
-    // add the new guess
+    // generate a new guess
     const createGuess = () => {
 
+        // before generating a new guess,
+        // the results of the previous guess are used to generate a new set of valid words
         let newWords = []
         if(mode === 'easy')
             newWords = validWords.filter(word => !botGuesses.includes(word) && easyWordTest(word, letterHistory, incorrectLetters, incorrectPos))
-        else if(mode === 'avg')
-            newWords = validWords.filter(word => !botGuesses.includes(word) && avgWordTest(word, letterHistory, incorrectLetters, incorrectPos))
-        else newWords = hardWordTest(letterHistory, incorrectLetters, incorrectPos).map(item => { return item.w })
+        else if(mode === 'medium')
+            newWords = validWords.filter(word => !botGuesses.includes(word) && mediumWordTest(word, letterHistory, incorrectLetters, incorrectPos))
+        else newWords = hardWordTest(validWords, letterHistory, incorrectLetters, incorrectPos).map(item => { return item.w })
 
         setValidWords(newWords)
 
+        // for easy and medium mode, choose a new guess from new valid words
+        // for hard mode, choose a word from the first 5 words of new valid words randomly
         let newGuess = ''
         if(mode === 'easy')
             newGuess = newWords[Math.floor(Math.random() * newWords.length)]
-        else if(mode === 'avg')
+        else if(mode === 'medium')
             newGuess = newWords[Math.floor(Math.random() * newWords.length)]
         else{
-            let temp = newWords.slice(0, (newWords.length > 10 ? 10 : newWords.length))
+            let temp = newWords.slice(0, (newWords.length > 5 ? 5 : newWords.length))
             newGuess = temp[Math.floor(Math.random() * temp.length)]
         }
 
@@ -124,6 +150,7 @@ const useBotGameStates = (secret, playerTurn, setPlayerTurn, strLen, mode) => {
     }
 
 
+    // remove words that do not have green letters from the valid words
     const easyWordTest = (word, letterHistory, incorrectLetters) => {
         let pass = true
         let wordArray = word.split('')
@@ -133,17 +160,37 @@ const useBotGameStates = (secret, playerTurn, setPlayerTurn, strLen, mode) => {
                 pass = false
                 return
             }
-        // else if (incorrectLetters.includes(wordArray[i])) { // grey test
-        //         pass = false
-        //         return
-        //     }
-        //      else
-        //         pass = !letterHistory[i].incorrectPos.includes(wordArray[i]) // yellow test
 
         return pass
     }
 
-    const avgWordTest = (word, letterHistory, incorrectLetters, incorrectPos) => {
+    // remove words that do not have green letters (letters that is in secret),
+    // remove words that have grey letters (letters that not in secret),
+    // remove the words where the letters are repeated in the wrong place
+    // from the valid words
+    const mediumWordTest = (word, letterHistory, incorrectLetters, incorrectPos) => {
+
+        let pass = true
+        let wordArray = word.split('')
+
+        for(let i=0; i < wordArray.length; ++i)
+            if (letterHistory[i].correct !== null && wordArray[i] !== letterHistory[i].correct) { // green test
+                pass = false
+                return
+            }
+            else if (incorrectLetters.includes(wordArray[i])) { // grey test
+                 pass = false
+                 return
+            }
+            else
+                pass = !letterHistory[i].incorrectPos.includes(wordArray[i]) // yellow test
+        return pass
+    }
+
+
+    // in addition to the words that were deleted in the mediumWordTest function,
+    // the words that do not have yellow letters are also deleted (yellow letters: letters that is in secret but not in correct position),
+    const preHardTest = (word, letterHistory, incorrectLetters, incorrectPos) => {
 
         let pass = true
         let wordArray = word.split('')
@@ -151,39 +198,27 @@ const useBotGameStates = (secret, playerTurn, setPlayerTurn, strLen, mode) => {
         incorrectPos.forEach(l => {
             if(!wordArray.includes(l)){
                 pass = false
-                return
             }
         })
 
-       if(pass)
-            for(let i=0; i < wordArray.length; ++i)
-                if (letterHistory[i].correct !== null && wordArray[i] !== letterHistory[i].correct) { // green test
-                    pass = false
-                    return
-                }
-                else if (incorrectLetters.includes(wordArray[i])) { // grey test
-                     pass = false
-                     return
-                }
-                else
-                    pass = !letterHistory[i].incorrectPos.includes(wordArray[i]) // yellow test
-        return pass
+        return pass && mediumWordTest(word, letterHistory, incorrectLetters, incorrectPos)
     }
 
-    const hardWordTest = ( letterHistory, incorrectLetters, incorrectPos) => {
 
-        const lettersPossibility = letterPossibility
-        let filteredWords = validWords.filter(word => !botGuesses.includes(word) && avgWordTest(word, letterHistory, incorrectLetters, incorrectPos))
+    // find words that have the most frequent letters and sort them in descending order and assign to valid words state
+    // then to generate new guess choose a word from the first 5 words of new valid words randomly (in create guess function)
+    const hardWordTest = (validWords, letterHistory, incorrectLetters, incorrectPos) => {
 
-        let possibilityArray = []
-        filteredWords.map(word => {
-            let wordP = 0
+        let filteredWords = validWords.filter(word => !botGuesses.includes(word) && preHardTest(word, letterHistory, incorrectLetters, incorrectPos))
+
+        let frequencyArray = filteredWords.map(word => {
+            let frequencySum = 0
             word.split('').forEach(letter => {
-                wordP += lettersPossibility.find(item => item.key === letter).p
+                frequencySum += letterFrequency.find(item => item.key === letter).p
             })
-            possibilityArray.push({w: word, p: wordP})
+            return {w: word, p: frequencySum}
         })
-        return possibilityArray.sort((word1, word2) => (word2.p - word1.p));
+        return frequencyArray.sort((word1, word2) => (word2.p - word1.p));
     }
 
     return {turn, botGuesses, botIsCorrect, createGuess, resetBotState}

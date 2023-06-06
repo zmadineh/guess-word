@@ -11,7 +11,7 @@ export default function Game({secret, resetSecret, strLen}) {
 
     const [playerTurn, setPlayerTurn] = useState(true) // true human or false bot
     const [stop, setStop] = useState(false)
-    const [mode, setMode] = useState('avg')
+    const [mode, setMode] = useState('medium')
     const { currentPlayerGuess, isCorrect, guesses, handleChange, handleSubmit, resetPlayerState } = usePlayerGameStates(secret, setPlayerTurn)
     const { botIsCorrect, botGuesses, createGuess, resetBotState } = useBotGameStates(secret, playerTurn, setPlayerTurn, strLen, mode)
 

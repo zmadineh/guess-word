@@ -10,7 +10,7 @@ function App() {
     const strLen = 5
 
     const resetSecret = () => {
-        const randomSecret = words[Math.floor(Math.random() * words.length)]
+        const randomSecret = "WATCH" //words[Math.floor(Math.random() * words.length)]
         setSecret(randomSecret)
     }
 

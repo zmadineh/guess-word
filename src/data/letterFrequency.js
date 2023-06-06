@@ -1,6 +1,7 @@
-import {words} from "./words";
-
-export const letterPossibility =
+// The following is a result of an analysis of the letters occurring
+// in the words listed in the main entries of the Concise Oxford Dictionary (9th edition, 1995)
+// https://www3.nd.edu/~busiforc/handouts/cryptography/letterfrequencies.html
+export const letterFrequency =
     [
         {key: 'A', p: 	8.4966},
         {key: 'B', p: 	2.0720},
@@ -29,8 +30,3 @@ export const letterPossibility =
         {key: 'Y', p: 	1.7779},
         {key: 'Z', p: 	0.2722},
     ];
-
-// const calcPossibility = () => {
-//     let count = Array.apply(null, Array(26)).map(l => { return 0})
-//     words.map()
-// }

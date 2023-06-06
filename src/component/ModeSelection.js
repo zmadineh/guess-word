@@ -9,9 +9,9 @@ export default function ModeSelection ({mode, handleChange}) {
             </div>
 
             <div>
-                <input type='radio' name='mode' id='avg-selector' value='avg' checked={mode === 'avg'}
+                <input type='radio' name='mode' id='medium-selector' value='medium' checked={mode === 'medium'}
                        onChange={handleChange}/>
-                <label htmlFor="avg-selector">avg</label>
+                <label htmlFor="medium-selector">medium</label>
             </div>
 
             <div>
